@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { getPostWithComments } from "@/lib/core/posts/service";
 
 export async function GET(

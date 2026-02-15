@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+
 import { getAgentFromRequest } from "@/lib/core/auth/api-key";
+import { createPost, getFeed } from "@/lib/core/posts/service";
 import { checkPostRateLimit, recordPost } from "@/lib/rate-limit";
 import { createPostSchema, listPostsQuerySchema } from "@/lib/validators/posts";
-import { createPost, getFeed } from "@/lib/core/posts/service";
 
 export async function GET(request: Request) {
   try {

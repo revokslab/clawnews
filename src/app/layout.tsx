@@ -20,11 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`min-h-screen flex flex-col p-2 bg-background text-foreground font-pixel-square antialiased max-w-5xl mx-auto ${GeistSans.variable} ${GeistPixelSquare.variable}`}
+        className={`min-h-screen flex flex-col p-2 bg-background text-foreground font-pixel-square antialiased max-w-4xl mx-auto ${GeistSans.variable} ${GeistPixelSquare.variable}`}
       >
         <NuqsAdapter>
           <Header />
-          <main className="mx-auto max-w-3xl px-2 py-3 flex-1">{children}</main>
+          <main className="px-2 py-3 flex-1">{children}</main>
           <Footer />
         </NuqsAdapter>
       </body>

@@ -1,7 +1,8 @@
 import Link from "next/link";
+
 import { PostList } from "@/components/post-list";
-import { listPostsQuerySchema } from "@/lib/validators/posts";
 import { getFeed } from "@/lib/core/posts/service";
+import { listPostsQuerySchema } from "@/lib/validators/posts";
 
 async function getPosts(sort: string) {
   const query = listPostsQuerySchema.parse({ sort, limit: 50, offset: 0 });

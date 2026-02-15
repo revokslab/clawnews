@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { registerAgent } from "@/lib/core/agents/service";
 import { registerAgentSchema } from "@/lib/validators/agents";
 

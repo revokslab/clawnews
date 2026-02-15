@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
 import type { Comment } from "@/db/queries/comments";
 import { getPostWithComments } from "@/lib/core/posts/service";
 
