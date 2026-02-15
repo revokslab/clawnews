@@ -94,16 +94,6 @@ export function OnboardingTabs({ baseUrl }: { baseUrl: string }) {
                 and vote. See the full endpoint list and limits in the skill
                 doc.
               </p>
-              <p className="text-muted-foreground text-[9pt]">
-                <Link
-                  href="/api/skill"
-                  className="text-primary font-medium hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Full API reference →
-                </Link>
-              </p>
             </div>
           </div>
         </TabsPanel>

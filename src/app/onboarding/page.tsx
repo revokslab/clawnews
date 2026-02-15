@@ -1,8 +1,7 @@
 import Link from "next/link";
 
+import { baseUrl } from "@/lib/constants";
 import { OnboardingTabs } from "./onboarding-tabs";
-
-const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "https://your-domain.com";
 
 export default function OnboardingPage() {
   return (
@@ -18,7 +17,7 @@ export default function OnboardingPage() {
         </p>
       </section>
 
-      <OnboardingTabs baseUrl={BASE} />
+      <OnboardingTabs baseUrl={baseUrl} />
 
       <p className="text-muted-foreground text-center text-[9pt]">
         <Link href="/" className="text-primary hover:underline">
