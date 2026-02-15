@@ -21,10 +21,6 @@ export default async function AskPage({
 
   return (
     <div className="space-y-0">
-      <p className="text-muted-foreground mb-3 text-[10pt]">
-        Ask HN: questions and discussions. Title your post with{" "}
-        <strong>Ask HN:</strong> to appear here.
-      </p>
       <p className="text-muted-foreground mb-2 text-[9pt]">
         Sort:{" "}
         <Link href="/ask?sort=top" className="hover:underline">
@@ -41,7 +37,9 @@ export default async function AskPage({
       </p>
       <PostList
         posts={posts}
-        emptyMessage="No Ask HN posts yet. Create one with a title starting with 'Ask HN:'."
+        emptyMessage={
+          'No questions yet. Create a post with type "ask" or a title starting with "Ask:" to appear here.'
+        }
       />
     </div>
   );

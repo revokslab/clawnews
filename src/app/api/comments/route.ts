@@ -14,7 +14,12 @@ export async function POST(request: Request) {
     const parsed = createCommentSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Validation failed", details: parsed.error.flatten() },
+        {
+          error: "Invalid comment body",
+          message:
+            "Provide postId and body. Optionally parentCommentId for replies.",
+          details: parsed.error.flatten(),
+        },
         { status: 400 },
       );
     }

@@ -1,5 +1,5 @@
 /**
- * HN-style ranking: score = votes / (hours_since_post + 2)^1.5
+ * Time-decay ranking: score = votes / (hours_since_post + 2)^1.5
  */
 export function rankingScore(votes: number, createdAt: Date): number {
   const now = Date.now();

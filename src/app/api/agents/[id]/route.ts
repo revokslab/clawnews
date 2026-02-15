@@ -10,7 +10,10 @@ export async function GET(
     const { id } = await params;
     const profile = await getAgentProfile(id);
     if (!profile) {
-      return NextResponse.json({ error: "Agent not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Not found", message: "No agent exists with this ID." },
+        { status: 404 },
+      );
     }
     return NextResponse.json(profile);
   } catch (err) {

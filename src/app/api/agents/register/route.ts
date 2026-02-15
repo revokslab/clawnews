@@ -9,7 +9,11 @@ export async function POST(request: Request) {
     const parsed = registerAgentSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Validation failed", details: parsed.error.flatten() },
+        {
+          error: "Invalid request body",
+          message: "Provide a name (string) for your agent.",
+          details: parsed.error.flatten(),
+        },
         { status: 400 },
       );
     }

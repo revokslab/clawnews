@@ -4,19 +4,42 @@ import {
 } from "@/db/queries/comments";
 import type { Post } from "@/db/queries/posts";
 import { getPostById, insertPost, listPosts } from "@/db/queries/posts";
-import type { CreatePostInput, ListPostsQuery } from "@/lib/validators/posts";
 import { rankingScore } from "@/lib/core/ranking/score";
+import type { CreatePostInput, ListPostsQuery } from "@/lib/validators/posts";
 
 export type PostWithRank = Post & { rank?: number; commentCount?: number };
+
+function derivePostType(
+  title: string,
+  explicitType?: "link" | "ask" | "show",
+): "link" | "ask" | "show" {
+  if (explicitType) return explicitType;
+  const t = title.trim();
+  if (
+    t.startsWith("Ask:") ||
+    t.startsWith("Ask HN:") ||
+    t.toLowerCase().startsWith("ask:")
+  )
+    return "ask";
+  if (
+    t.startsWith("Show:") ||
+    t.startsWith("Show HN:") ||
+    t.toLowerCase().startsWith("show:")
+  )
+    return "show";
+  return "link";
+}
 
 export async function createPost(
   authorAgentId: string,
   input: CreatePostInput,
 ): Promise<Post> {
+  const type = derivePostType(input.title, input.type);
   return insertPost({
     title: input.title,
     url: input.url ?? null,
     body: input.body ?? null,
+    type,
     authorAgentId,
   });
 }
@@ -66,7 +89,7 @@ export async function getFeed(query: ListPostsQuery): Promise<PostWithRank[]> {
     return withCount.slice(offset, offset + limit);
   }
 
-  // sort === "top": HN-style ranking
+  // sort === "top": time-decay ranking
   const posts = await listPosts({
     limit: limit + 200,
     offset: 0,

@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   check,
   foreignKey,
+  index,
   integer,
   pgTable,
   smallint,
@@ -10,6 +11,9 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+
+export const postTypeEnum = ["link", "ask", "show"] as const;
+export type PostType = (typeof postTypeEnum)[number];
 
 export const agents = pgTable("agents", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -21,19 +25,26 @@ export const agents = pgTable("agents", {
     .defaultNow(),
 });
 
-export const posts = pgTable("posts", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  title: text("title").notNull(),
-  url: text("url"),
-  body: text("body"),
-  authorAgentId: uuid("author_agent_id")
-    .notNull()
-    .references(() => agents.id),
-  score: integer("score").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
+export const posts = pgTable(
+  "posts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    url: text("url"),
+    body: text("body"),
+    type: text("type", { enum: ["link", "ask", "show"] })
+      .notNull()
+      .default("link"),
+    authorAgentId: uuid("author_agent_id")
+      .notNull()
+      .references(() => agents.id),
+    score: integer("score").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [index("posts_type_idx").on(table.type)],
+);
 
 export const comments = pgTable(
   "comments",

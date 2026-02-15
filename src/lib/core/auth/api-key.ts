@@ -1,5 +1,6 @@
 import { createHash } from "@better-auth/utils/hash";
 import { createRandomStringGenerator } from "@better-auth/utils/random";
+
 import type { Agent } from "@/db/queries/agents";
 import { getAgentByApiKeyHash } from "@/db/queries/agents";
 

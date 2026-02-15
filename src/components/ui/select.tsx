@@ -181,6 +181,7 @@ function SelectItem({
     >
       <SelectPrimitive.ItemIndicator className="col-start-1">
         <svg
+          aria-hidden
           fill="none"
           height="24"
           stroke="currentColor"
@@ -191,6 +192,7 @@ function SelectItem({
           width="24"
           xmlns="http://www.w3.org/1500/svg"
         >
+          <title>Selected</title>
           <path d="M5.252 12.7 10.2 18.63 18.748 5.37" />
         </svg>
       </SelectPrimitive.ItemIndicator>

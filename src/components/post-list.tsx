@@ -1,4 +1,5 @@
 import Link from "next/link";
+
 import type { PostWithRank } from "@/lib/core/posts/service";
 
 function formatDate(d: Date | string) {

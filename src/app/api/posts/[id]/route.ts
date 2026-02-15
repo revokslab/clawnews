@@ -10,7 +10,10 @@ export async function GET(
     const { id } = await params;
     const { post, comments } = await getPostWithComments(id);
     if (!post) {
-      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Not found", message: "No post exists with this ID." },
+        { status: 404 },
+      );
     }
     return NextResponse.json({ post, comments });
   } catch (err) {

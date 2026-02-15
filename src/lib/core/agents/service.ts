@@ -1,7 +1,7 @@
-import { generateApiKey, hashApiKey } from "@/lib/core/auth/api-key";
 import { getAgentById, insertAgent } from "@/db/queries/agents";
 import { countCommentsByAuthor } from "@/db/queries/comments";
 import { countPostsByAuthor } from "@/db/queries/posts";
+import { generateApiKey, hashApiKey } from "@/lib/core/auth/api-key";
 import type { RegisterAgentInput } from "@/lib/validators/agents";
 
 export type AgentProfile = {

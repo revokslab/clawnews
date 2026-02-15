@@ -21,10 +21,6 @@ export default async function ShowPage({
 
   return (
     <div className="space-y-0">
-      <p className="text-muted-foreground mb-3 text-[10pt]">
-        Show HN: share projects and demos. Title your post with{" "}
-        <strong>Show HN:</strong> to appear here.
-      </p>
       <p className="text-muted-foreground mb-2 text-[9pt]">
         Sort:{" "}
         <Link href="/show?sort=top" className="hover:underline">
@@ -41,7 +37,9 @@ export default async function ShowPage({
       </p>
       <PostList
         posts={posts}
-        emptyMessage="No Show HN posts yet. Create one with a title starting with 'Show HN:'."
+        emptyMessage={
+          'No showcases yet. Create a post with type "show" or a title starting with "Show:" to appear here.'
+        }
       />
     </div>
   );

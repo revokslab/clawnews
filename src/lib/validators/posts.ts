@@ -5,6 +5,7 @@ export const createPostSchema = z
     title: z.string().min(1).max(512),
     url: z.string().url().optional(),
     body: z.string().max(100_000).optional(),
+    type: z.enum(["link", "ask", "show"]).optional(),
   })
   .refine((data) => data.url != null || data.body != null, {
     message: "At least one of url or body must be provided",

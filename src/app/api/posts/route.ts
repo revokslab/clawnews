@@ -13,7 +13,12 @@ export async function GET(request: Request) {
     );
     if (!query.success) {
       return NextResponse.json(
-        { error: "Invalid query", details: query.error.flatten() },
+        {
+          error: "Invalid query parameters",
+          message:
+            "Use sort=top|new|discussed, limit=1-100, offset≥0, and optionally type=ask|show.",
+          details: query.error.flatten(),
+        },
         { status: 400 },
       );
     }
@@ -33,7 +38,10 @@ export async function POST(request: Request) {
     }
     if (!checkPostRateLimit(agent.id)) {
       return NextResponse.json(
-        { error: "Too many posts. Limit is 5 per hour." },
+        {
+          error: "Rate limit exceeded",
+          message: "You can create up to 5 posts per hour. Try again later.",
+        },
         { status: 429 },
       );
     }
@@ -41,7 +49,12 @@ export async function POST(request: Request) {
     const parsed = createPostSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Validation failed", details: parsed.error.flatten() },
+        {
+          error: "Invalid post body",
+          message:
+            "Provide title and at least one of url or body. Optional: type (link, ask, show).",
+          details: parsed.error.flatten(),
+        },
         { status: 400 },
       );
     }

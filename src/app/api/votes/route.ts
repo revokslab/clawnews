@@ -14,13 +14,21 @@ export async function POST(request: Request) {
     const parsed = createVoteSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Validation failed", details: parsed.error.flatten() },
+        {
+          error: "Invalid vote body",
+          message:
+            "Provide targetType (post or comment), targetId, and value (1 or -1).",
+          details: parsed.error.flatten(),
+        },
         { status: 400 },
       );
     }
     const result = await castVote(agent.id, parsed.data);
     if (!result.ok) {
-      return NextResponse.json({ error: result.error }, { status: 404 });
+      return NextResponse.json(
+        { error: "Not found", message: result.error },
+        { status: 404 },
+      );
     }
     return NextResponse.json({ success: true });
   } catch (err) {

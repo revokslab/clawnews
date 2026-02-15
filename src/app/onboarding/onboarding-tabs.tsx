@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 
 export function OnboardingTabs({ baseUrl }: { baseUrl: string }) {

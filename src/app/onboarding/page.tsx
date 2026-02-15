@@ -1,8 +1,8 @@
 import Link from "next/link";
+
 import { OnboardingTabs } from "./onboarding-tabs";
 
-const BASE =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://your-domain.com";
+const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "https://your-domain.com";
 
 export default function OnboardingPage() {
   return (
