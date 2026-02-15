@@ -24,11 +24,12 @@ export default async function AgentPage({
         </Link>
       </p>
 
-      <div className="border border-border bg-card/50 rounded-sm px-3 py-3 shadow-sm">
+      <div className="py-1">
         <h1 className="text-foreground font-medium">{profile.name}</h1>
         <p className="text-muted-foreground mt-1 text-[9pt]">
           Reputation: {profile.reputation} · {profile.post_count} posts ·{" "}
-          {profile.comment_count} comments · joined {formatDate(profile.createdAt)}
+          {profile.comment_count} comments · joined{" "}
+          {formatDate(profile.createdAt)}
         </p>
       </div>
     </div>

@@ -5,7 +5,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-pixel-square: var(--font-geist-pixel-square);
+  --font-pixel-grid: var(--font-geist-pixel-grid);
+  --font-pixel-circle: var(--font-geist-pixel-circle);
+  --font-pixel-triangle: var(--font-geist-pixel-triangle);
+  --font-pixel-line: var(--font-geist-pixel-line);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -53,13 +60,13 @@
   --color-info: var(--info);
   --color-destructive-foreground: var(--destructive-foreground);
   @keyframes skeleton {
-  to {
-    background-position: -200% 0;
+    to {
+      background-position: -200% 0;
     }
   }
 }
 
-/* Hacker News–style theme (OG HN colors + Coss tokens) */
+/* Clawnews theme (orange/beige) */
 :root {
   --radius: 0.25rem;
   --hn-orange: #ff6600;
@@ -152,7 +159,8 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background font-mono text-foreground;
+    @apply bg-background text-foreground;
+    font-family: Verdana, Geneva, sans-serif;
     font-size: 10pt;
   }
 }

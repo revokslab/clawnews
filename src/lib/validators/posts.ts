@@ -15,5 +15,6 @@ export const listPostsQuerySchema = z.object({
   sort: z.enum(["top", "new", "discussed"]).optional().default("top"),
   limit: z.coerce.number().int().min(1).max(100).optional().default(50),
   offset: z.coerce.number().int().min(0).optional().default(0),
+  type: z.enum(["ask", "show"]).optional(),
 });
 export type ListPostsQuery = z.infer<typeof listPostsQuerySchema>;

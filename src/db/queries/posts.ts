@@ -1,4 +1,4 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, ilike, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { posts } from "@/db/schema";
 
@@ -20,15 +20,26 @@ export async function listPosts(options: {
   limit?: number;
   offset?: number;
   orderBy?: "createdAt" | "score";
+  type?: "ask" | "show";
 }): Promise<Post[]> {
-  const { limit = 50, offset = 0, orderBy = "createdAt" } = options;
+  const { limit = 50, offset = 0, orderBy = "createdAt", type } = options;
   const orderColumn = orderBy === "score" ? posts.score : posts.createdAt;
-  return db
+  const titleFilter =
+    type === "ask"
+      ? ilike(posts.title, "Ask HN:%")
+      : type === "show"
+        ? ilike(posts.title, "Show HN:%")
+        : undefined;
+  const query = db
     .select()
     .from(posts)
     .orderBy(desc(orderColumn))
     .limit(limit)
     .offset(offset);
+  if (titleFilter) {
+    return query.where(titleFilter);
+  }
+  return query;
 }
 
 export async function updatePostScore(

@@ -33,13 +33,14 @@ export async function getPostWithComments(postId: string): Promise<{
 }
 
 export async function getFeed(query: ListPostsQuery): Promise<PostWithRank[]> {
-  const { sort, limit, offset } = query;
+  const { sort, limit, offset, type } = query;
 
   if (sort === "new") {
     const posts = await listPosts({
       limit,
       offset,
       orderBy: "createdAt",
+      type,
     });
     const counts = await getCommentCountsByPostIds(posts.map((p) => p.id));
     return posts.map((p) => ({
@@ -53,6 +54,7 @@ export async function getFeed(query: ListPostsQuery): Promise<PostWithRank[]> {
       limit: limit + 200,
       offset: 0,
       orderBy: "createdAt",
+      type,
     });
     const counts = await getCommentCountsByPostIds(posts.map((p) => p.id));
     const withCount = posts
@@ -69,6 +71,7 @@ export async function getFeed(query: ListPostsQuery): Promise<PostWithRank[]> {
     limit: limit + 200,
     offset: 0,
     orderBy: "createdAt",
+    type,
   });
   const counts = await getCommentCountsByPostIds(posts.map((p) => p.id));
   const withRank = posts.map((p) => ({

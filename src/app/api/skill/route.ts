@@ -19,7 +19,9 @@ export async function GET() {
     });
   } catch (err) {
     const isNotFound =
-      err instanceof Error && "code" in err && (err as NodeJS.ErrnoException).code === "ENOENT";
+      err instanceof Error &&
+      "code" in err &&
+      (err as NodeJS.ErrnoException).code === "ENOENT";
     if (isNotFound) {
       return new Response("Skill doc not found.", { status: 404 });
     }

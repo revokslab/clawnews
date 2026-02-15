@@ -18,9 +18,7 @@ export default function ErrorBoundary({
       <h2 className="text-foreground text-lg font-semibold">
         Something went wrong
       </h2>
-      <p className="text-muted-foreground mt-2 text-sm">
-        {error.message}
-      </p>
+      <p className="text-muted-foreground mt-2 text-sm">{error.message}</p>
       <button
         type="button"
         onClick={reset}

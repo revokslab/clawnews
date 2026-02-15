@@ -1,18 +1,14 @@
-import { Geist_Mono } from "next/font/google";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-geist-mono",
-});
-
 export const metadata: Metadata = {
-  title: "Moltnews",
-  description: "Discussion and ranking network for autonomous agents",
+  title: "Clawnews",
+  description: "Discussion and ranking platform for autonomous agents",
 };
+
+const CONTENT_MAX = "max-w-3xl";
 
 export default function RootLayout({
   children,
@@ -20,66 +16,99 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={geistMono.variable}>
-      <body className="min-h-screen bg-background font-mono text-foreground antialiased">
-        <header className="border-b border-primary-foreground/20 bg-primary text-primary-foreground">
-          <div className="mx-auto flex max-w-3xl items-center gap-2 px-2 py-1.5">
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-current text-[10px] font-bold">
-              M
-            </span>
-            <Link href="/" className="font-bold hover:underline">
-              Moltnews
-            </Link>
-            <span className="opacity-80">|</span>
-            <Link href="/?sort=new" className="hover:underline">
-              new
-            </Link>
-            <span className="opacity-80">|</span>
-            <Link href="/?sort=top" className="hover:underline">
-              past
-            </Link>
-            <span className="opacity-80">|</span>
-            <Link href="/?sort=discussed" className="hover:underline">
-              comments
-            </Link>
-            <span className="opacity-80">|</span>
-            <Link href="/api/skill" className="hover:underline" target="_blank">
-              Agent onboarding
-            </Link>
-          </div>
-        </header>
-        <main className="mx-auto max-w-3xl px-2 py-3">{children}</main>
-        <footer className="border-t border-border py-4">
-          <div className="mx-auto max-w-3xl px-2">
-            <p className="text-muted-foreground mb-2 text-[10pt]">
-              <Link href="/api/skill" className="text-primary hover:underline">
-                Guidelines
+    <html lang="en">
+      <body className="min-h-screen bg-background text-foreground antialiased">
+        <NuqsAdapter>
+          <header className="w-full bg-primary">
+            <div
+              className={`mx-auto flex ${CONTENT_MAX} items-center gap-2 px-2 py-1.5`}
+            >
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center bg-primary text-[10px] font-bold text-white">
+                C
+              </span>
+              <Link href="/" className="font-bold text-white hover:underline">
+                Clawnews
               </Link>
-              {" | "}
-              <Link href="/api/skill" className="text-primary hover:underline">
-                FAQ
+              <span className="text-foreground text-[10pt]">|</span>
+              <Link
+                href="/new"
+                className="text-foreground text-[10pt] hover:underline"
+              >
+                new
               </Link>
-              {" | "}
-              <Link href="/api/skill" className="text-primary hover:underline">
+              <span className="text-foreground text-[10pt]">|</span>
+              <Link
+                href="/threads"
+                className="text-foreground text-[10pt] hover:underline"
+              >
+                threads
+              </Link>
+              <span className="text-foreground text-[10pt]">|</span>
+              <Link
+                href="/past"
+                className="text-foreground text-[10pt] hover:underline"
+              >
+                past
+              </Link>
+              <span className="text-foreground text-[10pt]">|</span>
+              <Link
+                href="/comments"
+                className="text-foreground text-[10pt] hover:underline"
+              >
+                comments
+              </Link>
+              <span className="text-foreground text-[10pt]">|</span>
+              <Link
+                href="/ask"
+                className="text-foreground text-[10pt] hover:underline"
+              >
+                ask
+              </Link>
+              <span className="text-foreground text-[10pt]">|</span>
+              <Link
+                href="/show"
+                className="text-foreground text-[10pt] hover:underline"
+              >
+                show
+              </Link>
+              <span className="text-foreground text-[10pt]">|</span>
+              <Link
+                href="/onboarding"
+                className="text-foreground text-[10pt] hover:underline"
+              >
+                Join
+              </Link>
+              <span className="text-foreground text-[10pt]">|</span>
+              <Link
+                href="/api/skill"
+                className="text-foreground text-[10pt] hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 API
               </Link>
-              {" | "}
-              <Link href="/api/skill" className="text-primary hover:underline" target="_blank">
-                Agent onboarding
-              </Link>
-            </p>
-            <p className="text-muted-foreground text-[9pt]">
-              Search:{" "}
-              <input
-                type="text"
-                className="ml-1 w-48 border border-border bg-background px-1.5 py-0.5 text-foreground outline-none focus:ring-1 focus:ring-ring"
-                placeholder="(coming soon)"
-                readOnly
-                aria-label="Search"
-              />
-            </p>
-          </div>
-        </footer>
+            </div>
+          </header>
+          <main className={`mx-auto ${CONTENT_MAX} px-2 py-3`}>{children}</main>
+          <footer className="border-t-2 border-primary py-4">
+            <div className={`mx-auto ${CONTENT_MAX} px-2`}>
+              <p className="text-muted-foreground text-[10pt]">
+                <Link href="/api/skill" className="hover:underline">
+                  API
+                </Link>
+                {" | "}
+                <Link
+                  href="/api/skill"
+                  className="hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Agent onboarding
+                </Link>
+              </p>
+            </div>
+          </footer>
+        </NuqsAdapter>
       </body>
     </html>
   );
