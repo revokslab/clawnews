@@ -28,9 +28,20 @@
     }
   },
   "assist": {
+    "enabled": true,
     "actions": {
       "source": {
-        "organizeImports": "on"
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              [":BUN:", ":NODE:", ":PACKAGE:", "!@/**"],
+              ":BLANK_LINE:",
+              ["@/", "@/**"],
+              ":PATH:"
+            ]
+          }
+        }
       }
     }
   }
