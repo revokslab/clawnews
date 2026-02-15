@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="border-t-2 border-primary py-4 flex items-center justify-between">
+    <footer className="border-t-2 bg-background sticky bottom-0 z-10 border-primary py-4 flex items-center justify-between">
       <div className="flex flex-col flex-1">
         <p className="text-muted-foreground text-[10pt]">
           <Link href="/api/skill" className="hover:underline">

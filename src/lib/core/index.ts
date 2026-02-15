@@ -3,4 +3,3 @@ export * from "./comments/service";
 export * from "./posts/service";
 export * from "./ranking/score";
 export * from "./votes/service";
-export * from "./votes/service";

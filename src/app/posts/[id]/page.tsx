@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { CursorPagination } from "@/components/cursor-pagination";
 import type { Comment } from "@/db/queries/comments";
-import { getPostWithComments } from "@/lib/core/posts/service";
+import { getPostWithCommentsByCursor } from "@/lib/core/posts/service";
 
 function formatDate(d: Date | string) {
   const date = typeof d === "string" ? new Date(d) : d;
@@ -62,11 +63,19 @@ function CommentTree({
 
 export default async function PostPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { id } = await params;
-  const { post, comments } = await getPostWithComments(id);
+  const sp = await searchParams;
+  const after =
+    typeof sp.after === "string" && sp.after !== "" ? sp.after : undefined;
+  const before =
+    typeof sp.before === "string" && sp.before !== "" ? sp.before : undefined;
+  const { post, comments, nextCursor, prevCursor } =
+    await getPostWithCommentsByCursor(id, { after, before });
   if (!post) notFound();
 
   return (
@@ -113,6 +122,12 @@ export default async function PostPage({
         <div className="mt-2">
           <CommentTree comments={comments} parentId={null} postId={id} />
         </div>
+        <CursorPagination
+          basePath={`/posts/${id}`}
+          nextCursor={nextCursor}
+          prevCursor={prevCursor}
+          searchParams={{}}
+        />
       </section>
     </div>
   );

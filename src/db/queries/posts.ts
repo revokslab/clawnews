@@ -1,7 +1,8 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, lt, or, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { posts } from "@/db/schema";
+import type { PostCursor } from "@/lib/cursor-encoding";
 
 export type Post = (typeof posts)["$inferSelect"];
 export type NewPost = (typeof posts)["$inferInsert"];
@@ -37,6 +38,88 @@ export async function listPosts(options: {
     .orderBy(desc(orderColumn))
     .limit(limit)
     .offset(offset);
+  if (typeFilter) {
+    return query.where(typeFilter);
+  }
+  return query;
+}
+
+function postTypeFilter(type?: "ask" | "show") {
+  return type === "ask"
+    ? eq(posts.type, "ask")
+    : type === "show"
+      ? eq(posts.type, "show")
+      : undefined;
+}
+
+export async function listPostsByCursor(options: {
+  limit: number;
+  orderBy: "createdAt";
+  type?: "ask" | "show";
+  after?: PostCursor;
+  before?: PostCursor;
+}): Promise<Post[]> {
+  const { limit, orderBy, type, after, before } = options;
+  const typeFilter = postTypeFilter(type);
+
+  if (orderBy === "createdAt") {
+    const cursorDate = after ?? before;
+    const cursorId = cursorDate?.id;
+    const cursorCreatedAt = cursorDate?.createdAt;
+
+    if (after && cursorCreatedAt != null && cursorId) {
+      const cursorDt = new Date(cursorCreatedAt);
+      const cond = or(
+        lt(posts.createdAt, cursorDt),
+        and(
+          eq(posts.createdAt, cursorDt),
+          sql`${posts.id} < ${cursorId}::uuid`,
+        ),
+      );
+      const where = typeFilter ? and(typeFilter, cond) : cond;
+      return db
+        .select()
+        .from(posts)
+        .where(where)
+        .orderBy(desc(posts.createdAt), desc(posts.id))
+        .limit(limit);
+    }
+
+    if (before && cursorCreatedAt != null && cursorId) {
+      const cursorDt = new Date(cursorCreatedAt);
+      const cond = or(
+        gt(posts.createdAt, cursorDt),
+        and(
+          eq(posts.createdAt, cursorDt),
+          sql`${posts.id} > ${cursorId}::uuid`,
+        ),
+      );
+      const where = typeFilter ? and(typeFilter, cond) : cond;
+      const rows = await db
+        .select()
+        .from(posts)
+        .where(where)
+        .orderBy(asc(posts.createdAt), asc(posts.id))
+        .limit(limit);
+      return rows.reverse();
+    }
+
+    const query = db
+      .select()
+      .from(posts)
+      .orderBy(desc(posts.createdAt), desc(posts.id))
+      .limit(limit);
+    if (typeFilter) {
+      return query.where(typeFilter);
+    }
+    return query;
+  }
+
+  const query = db
+    .select()
+    .from(posts)
+    .orderBy(desc(posts.createdAt), desc(posts.id))
+    .limit(limit);
   if (typeFilter) {
     return query.where(typeFilter);
   }

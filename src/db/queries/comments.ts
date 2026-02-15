@@ -1,7 +1,8 @@
-import { eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, lt, or, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { comments } from "@/db/schema";
+import type { CommentCursor } from "@/lib/cursor-encoding";
 
 export type Comment = (typeof comments)["$inferSelect"];
 export type NewComment = (typeof comments)["$inferInsert"];
@@ -71,4 +72,147 @@ export async function getCommentCountsByPostIds(
     if (r.postId != null) map.set(r.postId, r.count);
   }
   return map;
+}
+
+const isNull = sql`${comments.parentCommentId} IS NULL`;
+
+export async function getTopLevelCommentsByPostIdCursor(
+  postId: string,
+  limit: number,
+  after?: CommentCursor | null,
+  before?: CommentCursor | null,
+): Promise<{
+  rootComments: Comment[];
+  nextCursor: CommentCursor | null;
+  prevCursor: CommentCursor | null;
+}> {
+  const baseWhere = and(eq(comments.postId, postId), isNull);
+
+  if (after?.createdAt != null && after?.id) {
+    const cursorDt = new Date(after.createdAt);
+    const cond = or(
+      gt(comments.createdAt, cursorDt),
+      and(
+        eq(comments.createdAt, cursorDt),
+        sql`${comments.id} > ${after.id}::uuid`,
+      ),
+    );
+    const rows = await db
+      .select()
+      .from(comments)
+      .where(and(baseWhere, cond))
+      .orderBy(asc(comments.createdAt), asc(comments.id))
+      .limit(limit);
+    const nextCursor =
+      rows.length === limit && rows[rows.length - 1]
+        ? {
+            createdAt: rows[rows.length - 1].createdAt.toISOString(),
+            id: rows[rows.length - 1].id,
+          }
+        : null;
+    const prevCursor =
+      rows.length > 0 && rows[0]
+        ? { createdAt: rows[0].createdAt.toISOString(), id: rows[0].id }
+        : null;
+    return {
+      rootComments: rows,
+      nextCursor,
+      prevCursor,
+    };
+  }
+
+  if (before?.createdAt != null && before?.id) {
+    const cursorDt = new Date(before.createdAt);
+    const cond = or(
+      lt(comments.createdAt, cursorDt),
+      and(
+        eq(comments.createdAt, cursorDt),
+        sql`${comments.id} < ${before.id}::uuid`,
+      ),
+    );
+    const rows = await db
+      .select()
+      .from(comments)
+      .where(and(baseWhere, cond))
+      .orderBy(desc(comments.createdAt), desc(comments.id))
+      .limit(limit);
+    const rootComments = rows.reverse();
+    const nextCursor =
+      rootComments.length === limit && rootComments[rootComments.length - 1]
+        ? {
+            createdAt:
+              rootComments[rootComments.length - 1].createdAt.toISOString(),
+            id: rootComments[rootComments.length - 1].id,
+          }
+        : null;
+    const prevCursor =
+      rootComments.length > 0 && rootComments[0]
+        ? {
+            createdAt: rootComments[0].createdAt.toISOString(),
+            id: rootComments[0].id,
+          }
+        : null;
+    return {
+      rootComments,
+      nextCursor,
+      prevCursor,
+    };
+  }
+
+  const rootComments = await db
+    .select()
+    .from(comments)
+    .where(baseWhere)
+    .orderBy(asc(comments.createdAt), asc(comments.id))
+    .limit(limit);
+  const nextCursor =
+    rootComments.length === limit && rootComments[rootComments.length - 1]
+      ? {
+          createdAt:
+            rootComments[rootComments.length - 1].createdAt.toISOString(),
+          id: rootComments[rootComments.length - 1].id,
+        }
+      : null;
+  const prevCursor =
+    rootComments.length > 0 && rootComments[0]
+      ? {
+          createdAt: rootComments[0].createdAt.toISOString(),
+          id: rootComments[0].id,
+        }
+      : null;
+  return { rootComments, nextCursor, prevCursor };
+}
+
+export async function getDescendantsOfCommentIds(
+  postId: string,
+  rootIds: string[],
+): Promise<Comment[]> {
+  if (rootIds.length === 0) return [];
+  const allComments = await db
+    .select()
+    .from(comments)
+    .where(eq(comments.postId, postId))
+    .orderBy(comments.createdAt);
+  const rootSet = new Set(rootIds);
+  const descendantIds = new Set<string>();
+  const byParent = new Map<string | null, Comment[]>();
+  for (const c of allComments) {
+    const key = c.parentCommentId ?? null;
+    const list = byParent.get(key);
+    if (list) list.push(c);
+    else byParent.set(key, [c]);
+  }
+  function collectDescendants(parentId: string): void {
+    const children = byParent.get(parentId) ?? [];
+    for (const child of children) {
+      descendantIds.add(child.id);
+      collectDescendants(child.id);
+    }
+  }
+  for (const rootId of rootIds) {
+    collectDescendants(rootId);
+  }
+  return allComments.filter(
+    (c) => rootSet.has(c.id) || descendantIds.has(c.id),
+  );
 }

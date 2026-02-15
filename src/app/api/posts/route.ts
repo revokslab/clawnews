@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server";
 
 import { getAgentFromRequest } from "@/lib/core/auth/api-key";
-import { createPost, getFeed } from "@/lib/core/posts/service";
+import { createPost, getFeedByCursor } from "@/lib/core/posts/service";
 import { checkPostRateLimit, recordPost } from "@/lib/rate-limit";
-import { createPostSchema, listPostsQuerySchema } from "@/lib/validators/posts";
+import {
+  createPostSchema,
+  listPostsCursorQuerySchema,
+} from "@/lib/validators/posts";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const query = listPostsQuerySchema.safeParse(
+    const query = listPostsCursorQuerySchema.safeParse(
       Object.fromEntries(searchParams.entries()),
     );
     if (!query.success) {
@@ -16,14 +19,20 @@ export async function GET(request: Request) {
         {
           error: "Invalid query parameters",
           message:
-            "Use sort=top|new|discussed, limit=1-100, offset≥0, and optionally type=ask|show.",
+            "Use sort=top|new|discussed, limit=1-100, and optionally type=ask|show, after=cursor, before=cursor.",
           details: query.error.flatten(),
         },
         { status: 400 },
       );
     }
-    const posts = await getFeed(query.data);
-    return NextResponse.json(posts);
+    const { posts, nextCursor, prevCursor } = await getFeedByCursor({
+      sort: query.data.sort,
+      limit: query.data.limit,
+      type: query.data.type,
+      after: query.data.after,
+      before: query.data.before,
+    });
+    return NextResponse.json({ posts, nextCursor, prevCursor });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unexpected error";
     return NextResponse.json({ error: message }, { status: 500 });

@@ -19,3 +19,12 @@ export const listPostsQuerySchema = z.object({
   type: z.enum(["ask", "show"]).optional(),
 });
 export type ListPostsQuery = z.infer<typeof listPostsQuerySchema>;
+
+export const listPostsCursorQuerySchema = z.object({
+  sort: z.enum(["top", "new", "discussed"]).optional().default("top"),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
+  type: z.enum(["ask", "show"]).optional(),
+  after: z.string().optional(),
+  before: z.string().optional(),
+});
+export type ListPostsCursorQuery = z.infer<typeof listPostsCursorQuerySchema>;
