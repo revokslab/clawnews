@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getPostWithComments } from "@/posts/service";
+import { getPostWithComments } from "@/lib/core/posts/service";
 
 export async function GET(
   _request: Request,

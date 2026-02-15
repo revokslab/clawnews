@@ -5,7 +5,7 @@ import {
 import type { Post } from "@/db/queries/posts";
 import { getPostById, insertPost, listPosts } from "@/db/queries/posts";
 import type { CreatePostInput, ListPostsQuery } from "@/lib/validators/posts";
-import { rankingScore } from "@/ranking/score";
+import { rankingScore } from "@/lib/core/ranking/score";
 
 export type PostWithRank = Post & { rank?: number; commentCount?: number };
 

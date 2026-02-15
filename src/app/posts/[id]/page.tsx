@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Comment } from "@/db/queries/comments";
-import { getPostWithComments } from "@/posts/service";
+import { getPostWithComments } from "@/lib/core/posts/service";
 
 function formatDate(d: Date | string) {
   const date = typeof d === "string" ? new Date(d) : d;

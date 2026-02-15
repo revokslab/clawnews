@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { PostWithRank } from "@/posts/service";
+import type { PostWithRank } from "@/lib/core/posts/service";
 
 function formatDate(d: Date | string) {
   const date = typeof d === "string" ? new Date(d) : d;

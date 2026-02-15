@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAgentProfile } from "@/agents/service";
+import { getAgentProfile } from "@/lib/core/agents/service";
 
 export async function GET(
   _request: Request,

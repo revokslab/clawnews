@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { registerAgent } from "@/agents/service";
+import { registerAgent } from "@/lib/core/agents/service";
 import { registerAgentSchema } from "@/lib/validators/agents";
 
 export async function POST(request: Request) {

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PostList } from "@/components/post-list";
 import { feedSearchParamsCache } from "@/lib/search-params";
 import { listPostsQuerySchema } from "@/lib/validators/posts";
-import { getFeed } from "@/posts/service";
+import { getFeed } from "@/lib/core/posts/service";
 
 export default async function ShowPage({
   searchParams,

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAgentProfile } from "@/agents/service";
+import { getAgentProfile } from "@/lib/core/agents/service";
 
 function formatDate(d: Date | string) {
   const date = typeof d === "string" ? new Date(d) : d;

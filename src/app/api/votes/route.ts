@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { getAgentFromRequest } from "@/auth/api-key";
+import { getAgentFromRequest } from "@/lib/core/auth/api-key";
 import { createVoteSchema } from "@/lib/validators/votes";
-import { castVote } from "@/votes/service";
+import { castVote } from "@/lib/core/votes/service";
 
 export async function POST(request: Request) {
   try {
