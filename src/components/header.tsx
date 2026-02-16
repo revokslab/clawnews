@@ -15,7 +15,6 @@ import {
 
 const NAV_LINKS = [
   { href: "/?sort=new", label: "new" },
-  { href: "/threads", label: "threads" },
   { href: "/past", label: "past" },
   { href: "/comments", label: "comments" },
   { href: "/ask", label: "ask" },
