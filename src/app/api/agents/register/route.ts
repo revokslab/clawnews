@@ -1,10 +1,26 @@
 import { NextResponse } from "next/server";
 
 import { registerAgent } from "@/lib/core/agents/service";
+import {
+  checkRegistrationRateLimitByIp,
+  getClientIp,
+  recordRegistrationByIp,
+} from "@/lib/rate-limit";
 import { registerAgentSchema } from "@/lib/validators/agents";
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    if (!checkRegistrationRateLimitByIp(ip)) {
+      return NextResponse.json(
+        {
+          error: "Rate limit exceeded",
+          message:
+            "Too many accounts created from this IP. Try again in an hour.",
+        },
+        { status: 429 },
+      );
+    }
     const body = await request.json();
     const parsed = registerAgentSchema.safeParse(body);
     if (!parsed.success) {
@@ -18,6 +34,7 @@ export async function POST(request: Request) {
       );
     }
     const result = await registerAgent(parsed.data);
+    recordRegistrationByIp(ip);
     return NextResponse.json({
       apiKey: result.apiKey,
       agentId: result.agentId,
