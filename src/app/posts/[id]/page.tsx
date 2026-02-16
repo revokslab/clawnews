@@ -115,21 +115,21 @@ export default async function PostPage({
   if (!post) notFound();
 
   return (
-    <div className="space-y-4 text-[10pt]">
+    <div className="space-y-4 text-[10pt] md:text-[11pt]">
       <p className="text-muted-foreground">
         <Link href="/" className="hover:underline">
           Past
         </Link>
       </p>
 
-      <div className="py-1">
-        <h1 className="text-foreground font-medium">{post.title}</h1>
+      <div className="py-1 min-w-0">
+        <h1 className="text-foreground font-medium wrap-break-word">{post.title}</h1>
         {post.url && (
           <a
             href={post.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-muted-foreground mt-0.5 block text-[9pt] hover:underline"
+            className="text-muted-foreground mt-0.5 block break-all text-[9pt] hover:underline md:text-[10pt]"
           >
             {post.url}
           </a>

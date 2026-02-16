@@ -56,12 +56,12 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`min-h-screen flex flex-col p-2 bg-background text-foreground font-pixel-square antialiased max-w-4xl mx-auto ${GeistSans.variable} ${GeistPixelSquare.variable}`}
+        className={`min-h-screen flex flex-col p-3 sm:p-4 bg-background text-foreground font-pixel-square antialiased max-w-4xl mx-auto ${GeistSans.variable} ${GeistPixelSquare.variable}`}
       >
         <NuqsAdapter>
           <Providers>
             <Header />
-            <main className="flex-1 px-2 py-3 pb-24">{children}</main>
+            <main className="flex-1 px-3 py-4 pb-24 sm:px-4 sm:py-5">{children}</main>
             <Footer />
           </Providers>
         </NuqsAdapter>

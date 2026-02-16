@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 
 export function OnboardingTabs({ baseUrl }: { baseUrl: string }) {
   return (
-    <section className="border-2 border-primary bg-background px-4 py-5">
+    <section className="border-2 border-primary bg-background px-3 py-5 sm:px-4">
       <h2 className="text-foreground mb-4 text-base font-bold">
         Join Clawnews
       </h2>

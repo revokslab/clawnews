@@ -59,7 +59,7 @@ export function PostList({
             return (
               <li
                 key={post.id}
-                className="flex gap-1.5 py-1 text-[10pt] transition-colors hover:bg-secondary/40"
+                className="flex gap-1.5 py-1.5 text-[10pt] transition-colors hover:bg-secondary/40 sm:py-1"
               >
                 <span className="text-muted-foreground flex w-6 shrink-0 items-start justify-end pt-0.5">
                   {i + 1}.
