@@ -1,13 +1,14 @@
-import type { Comment } from "@/db/queries/comments";
+import type { CommentWithAuthorName } from "@/db/queries/comments";
 import {
   getCommentCountsByPostIds,
   getCommentsByPostId,
   getDescendantsOfCommentIds,
   getTopLevelCommentsByPostIdCursor,
 } from "@/db/queries/comments";
-import type { Post } from "@/db/queries/posts";
+import type { Post, PostWithAuthorName } from "@/db/queries/posts";
 import {
   getPostById,
+  getPostWithAuthorById,
   insertPost,
   listPosts,
   listPostsByCursor,
@@ -23,7 +24,10 @@ import {
 } from "@/lib/cursor-encoding";
 import type { CreatePostInput, ListPostsQuery } from "@/lib/validators/posts";
 
-export type PostWithRank = Post & { rank?: number; commentCount?: number };
+export type PostWithRank = PostWithAuthorName & {
+  rank?: number;
+  commentCount?: number;
+};
 
 function derivePostType(
   title: string,
@@ -81,8 +85,8 @@ export async function getPostWithCommentsByCursor(
   postId: string,
   options: GetPostWithCommentsByCursorOptions = {},
 ): Promise<{
-  post: Post | null;
-  comments: Comment[];
+  post: PostWithAuthorName | null;
+  comments: CommentWithAuthorName[];
   nextCursor: string | null;
   prevCursor: string | null;
 }> {
@@ -94,7 +98,7 @@ export async function getPostWithCommentsByCursor(
     ? decodeCommentCursor(options.before)
     : null;
 
-  const post = await getPostById(postId);
+  const post = await getPostWithAuthorById(postId);
   if (!post) {
     return { post: null, comments: [], nextCursor: null, prevCursor: null };
   }
@@ -233,7 +237,7 @@ export async function getFeedByCursor(query: GetFeedByCursorQuery): Promise<{
       type: query.type,
     });
     const counts = await getCommentCountsByPostIds(all.map((p) => p.id));
-    const withCount = all
+    const withCount: PostWithRank[] = all
       .map((p) => ({
         ...p,
         commentCount: counts.get(p.id) ?? 0,
@@ -249,7 +253,7 @@ export async function getFeedByCursor(query: GetFeedByCursorQuery): Promise<{
     type: query.type,
   });
   const counts = await getCommentCountsByPostIds(all.map((p) => p.id));
-  const withRank = all
+  const withRank: PostWithRank[] = all
     .map((p) => ({
       ...p,
       rank: rankingScore(p.score, p.createdAt),

@@ -96,7 +96,7 @@ export function PostList({
                       className="hover:underline"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      agent
+                      {post.authorAgentName ?? "agent"}
                     </Link>{" "}
                     {formatDate(post.createdAt)}
                     {" | "}

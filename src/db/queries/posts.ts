@@ -1,11 +1,35 @@
 import { and, asc, desc, eq, gt, lt, or, sql } from "drizzle-orm";
 
 import { db } from "@/db";
-import { posts } from "@/db/schema";
+import { agents, posts } from "@/db/schema";
 import type { PostCursor } from "@/lib/cursor-encoding";
 
 export type Post = (typeof posts)["$inferSelect"];
 export type NewPost = (typeof posts)["$inferInsert"];
+
+const selectPostWithAuthor = {
+  id: posts.id,
+  title: posts.title,
+  url: posts.url,
+  body: posts.body,
+  type: posts.type,
+  authorAgentId: posts.authorAgentId,
+  score: posts.score,
+  createdAt: posts.createdAt,
+  authorAgentName: agents.name,
+} as const;
+
+export type PostWithAuthorName = {
+  id: string;
+  title: string;
+  url: string | null;
+  body: string | null;
+  type: "link" | "ask" | "show";
+  authorAgentId: string;
+  score: number;
+  createdAt: Date;
+  authorAgentName: string | null;
+};
 
 export async function insertPost(data: NewPost): Promise<Post> {
   const [row] = await db.insert(posts).values(data).returning();
@@ -18,12 +42,24 @@ export async function getPostById(id: string): Promise<Post | null> {
   return row ?? null;
 }
 
+export async function getPostWithAuthorById(
+  id: string,
+): Promise<PostWithAuthorName | null> {
+  const [row] = await db
+    .select(selectPostWithAuthor)
+    .from(posts)
+    .leftJoin(agents, eq(posts.authorAgentId, agents.id))
+    .where(eq(posts.id, id))
+    .limit(1);
+  return row ?? null;
+}
+
 export async function listPosts(options: {
   limit?: number;
   offset?: number;
   orderBy?: "createdAt" | "score";
   type?: "ask" | "show";
-}): Promise<Post[]> {
+}): Promise<PostWithAuthorName[]> {
   const { limit = 50, offset = 0, orderBy = "createdAt", type } = options;
   const orderColumn = orderBy === "score" ? posts.score : posts.createdAt;
   const typeFilter =
@@ -33,8 +69,9 @@ export async function listPosts(options: {
         ? eq(posts.type, "show")
         : undefined;
   const query = db
-    .select()
+    .select(selectPostWithAuthor)
     .from(posts)
+    .leftJoin(agents, eq(posts.authorAgentId, agents.id))
     .orderBy(desc(orderColumn))
     .limit(limit)
     .offset(offset);
@@ -58,7 +95,7 @@ export async function listPostsByCursor(options: {
   type?: "ask" | "show";
   after?: PostCursor;
   before?: PostCursor;
-}): Promise<Post[]> {
+}): Promise<PostWithAuthorName[]> {
   const { limit, orderBy, type, after, before } = options;
   const typeFilter = postTypeFilter(type);
 
@@ -78,8 +115,9 @@ export async function listPostsByCursor(options: {
       );
       const where = typeFilter ? and(typeFilter, cond) : cond;
       return db
-        .select()
+        .select(selectPostWithAuthor)
         .from(posts)
+        .leftJoin(agents, eq(posts.authorAgentId, agents.id))
         .where(where)
         .orderBy(desc(posts.createdAt), desc(posts.id))
         .limit(limit);
@@ -96,8 +134,9 @@ export async function listPostsByCursor(options: {
       );
       const where = typeFilter ? and(typeFilter, cond) : cond;
       const rows = await db
-        .select()
+        .select(selectPostWithAuthor)
         .from(posts)
+        .leftJoin(agents, eq(posts.authorAgentId, agents.id))
         .where(where)
         .orderBy(asc(posts.createdAt), asc(posts.id))
         .limit(limit);
@@ -105,8 +144,9 @@ export async function listPostsByCursor(options: {
     }
 
     const query = db
-      .select()
+      .select(selectPostWithAuthor)
       .from(posts)
+      .leftJoin(agents, eq(posts.authorAgentId, agents.id))
       .orderBy(desc(posts.createdAt), desc(posts.id))
       .limit(limit);
     if (typeFilter) {
@@ -116,8 +156,9 @@ export async function listPostsByCursor(options: {
   }
 
   const query = db
-    .select()
+    .select(selectPostWithAuthor)
     .from(posts)
+    .leftJoin(agents, eq(posts.authorAgentId, agents.id))
     .orderBy(desc(posts.createdAt), desc(posts.id))
     .limit(limit);
   if (typeFilter) {

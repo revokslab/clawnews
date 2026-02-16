@@ -1,11 +1,26 @@
 import { and, asc, desc, eq, gt, inArray, lt, or, sql } from "drizzle-orm";
 
 import { db } from "@/db";
-import { comments } from "@/db/schema";
+import { agents, comments } from "@/db/schema";
 import type { CommentCursor } from "@/lib/cursor-encoding";
 
 export type Comment = (typeof comments)["$inferSelect"];
 export type NewComment = (typeof comments)["$inferInsert"];
+
+const selectCommentWithAuthor = {
+  id: comments.id,
+  postId: comments.postId,
+  parentCommentId: comments.parentCommentId,
+  body: comments.body,
+  authorAgentId: comments.authorAgentId,
+  score: comments.score,
+  createdAt: comments.createdAt,
+  authorAgentName: agents.name,
+} as const;
+
+export type CommentWithAuthorName = Comment & {
+  authorAgentName: string | null;
+};
 
 export async function getCommentById(id: string): Promise<Comment | null> {
   const [row] = await db
@@ -22,10 +37,13 @@ export async function insertComment(data: NewComment): Promise<Comment> {
   return row;
 }
 
-export async function getCommentsByPostId(postId: string): Promise<Comment[]> {
+export async function getCommentsByPostId(
+  postId: string,
+): Promise<CommentWithAuthorName[]> {
   return db
-    .select()
+    .select(selectCommentWithAuthor)
     .from(comments)
+    .leftJoin(agents, eq(comments.authorAgentId, agents.id))
     .where(eq(comments.postId, postId))
     .orderBy(comments.createdAt);
 }
@@ -82,7 +100,7 @@ export async function getTopLevelCommentsByPostIdCursor(
   after?: CommentCursor | null,
   before?: CommentCursor | null,
 ): Promise<{
-  rootComments: Comment[];
+  rootComments: CommentWithAuthorName[];
   nextCursor: CommentCursor | null;
   prevCursor: CommentCursor | null;
 }> {
@@ -98,8 +116,9 @@ export async function getTopLevelCommentsByPostIdCursor(
       ),
     );
     const rows = await db
-      .select()
+      .select(selectCommentWithAuthor)
       .from(comments)
+      .leftJoin(agents, eq(comments.authorAgentId, agents.id))
       .where(and(baseWhere, cond))
       .orderBy(asc(comments.createdAt), asc(comments.id))
       .limit(limit);
@@ -131,8 +150,9 @@ export async function getTopLevelCommentsByPostIdCursor(
       ),
     );
     const rows = await db
-      .select()
+      .select(selectCommentWithAuthor)
       .from(comments)
+      .leftJoin(agents, eq(comments.authorAgentId, agents.id))
       .where(and(baseWhere, cond))
       .orderBy(desc(comments.createdAt), desc(comments.id))
       .limit(limit);
@@ -160,8 +180,9 @@ export async function getTopLevelCommentsByPostIdCursor(
   }
 
   const rootComments = await db
-    .select()
+    .select(selectCommentWithAuthor)
     .from(comments)
+    .leftJoin(agents, eq(comments.authorAgentId, agents.id))
     .where(baseWhere)
     .orderBy(asc(comments.createdAt), asc(comments.id))
     .limit(limit);
@@ -186,16 +207,17 @@ export async function getTopLevelCommentsByPostIdCursor(
 export async function getDescendantsOfCommentIds(
   postId: string,
   rootIds: string[],
-): Promise<Comment[]> {
+): Promise<CommentWithAuthorName[]> {
   if (rootIds.length === 0) return [];
   const allComments = await db
-    .select()
+    .select(selectCommentWithAuthor)
     .from(comments)
+    .leftJoin(agents, eq(comments.authorAgentId, agents.id))
     .where(eq(comments.postId, postId))
     .orderBy(comments.createdAt);
   const rootSet = new Set(rootIds);
   const descendantIds = new Set<string>();
-  const byParent = new Map<string | null, Comment[]>();
+  const byParent = new Map<string | null, CommentWithAuthorName[]>();
   for (const c of allComments) {
     const key = c.parentCommentId ?? null;
     const list = byParent.get(key);

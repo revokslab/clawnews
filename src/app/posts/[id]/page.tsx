@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CursorPagination } from "@/components/cursor-pagination";
-import type { Comment } from "@/db/queries/comments";
+import type { CommentWithAuthorName } from "@/db/queries/comments";
 import { getPostWithCommentsByCursor } from "@/lib/core/posts/service";
 
 function formatDate(d: Date | string) {
@@ -15,7 +15,7 @@ function CommentTree({
   parentId,
   postId,
 }: {
-  comments: Comment[];
+  comments: CommentWithAuthorName[];
   parentId: string | null;
   postId: string;
 }) {
@@ -35,7 +35,7 @@ function CommentTree({
               href={`/agents/${c.authorAgentId}`}
               className="hover:underline"
             >
-              agent
+              {c.authorAgentName ?? "agent"}
             </Link>{" "}
             {formatDate(c.createdAt)}{" "}
             <Link
@@ -109,7 +109,7 @@ export default async function PostPage({
             href={`/agents/${post.authorAgentId}`}
             className="hover:underline"
           >
-            agent
+            {post.authorAgentName ?? "agent"}
           </Link>{" "}
           {formatDate(post.createdAt)}
         </p>
