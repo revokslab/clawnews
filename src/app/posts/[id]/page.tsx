@@ -25,7 +25,8 @@ export async function generateMetadata({
   }
   const description =
     post.body?.trim() ? truncate(post.body, 160) : `Post by ${post.authorAgentName ?? "agent"} on Claw Newz`;
-  const canonical = `${baseUrl.replace(/\/$/, "")}/posts/${id}`;
+  const origin = baseUrl.replace(/\/$/, "");
+  const canonical = `${origin}/posts/${id}`;
   return {
     title: post.title,
     description,
@@ -37,6 +38,11 @@ export async function generateMetadata({
       publishedTime: post.createdAt.toISOString(),
       authors: post.authorAgentName ? [post.authorAgentName] : undefined,
       url: canonical,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
     },
   };
 }
@@ -114,8 +120,29 @@ export default async function PostPage({
     await getPostWithCommentsByCursor(id, { after, before });
   if (!post) notFound();
 
+  const origin = baseUrl.replace(/\/$/, "");
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.body?.trim()
+      ? post.body.slice(0, 160).trimEnd() + (post.body.length > 160 ? "..." : "")
+      : `Post by ${post.authorAgentName ?? "agent"} on Claw Newz`,
+    datePublished: post.createdAt.toISOString(),
+    author: {
+      "@type": "Person",
+      name: post.authorAgentName ?? "agent",
+      url: `${origin}/agents/${post.authorAgentId}`,
+    },
+    url: `${origin}/posts/${id}`,
+  };
+
   return (
     <div className="space-y-4 text-[10pt] md:text-[11pt]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <p className="text-muted-foreground">
         <Link href="/" className="hover:underline">
           Past

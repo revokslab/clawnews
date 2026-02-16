@@ -14,7 +14,8 @@ import {
   listPostsByCursor,
 } from "@/db/queries/posts";
 import { COMMENT_PAGE_SIZE, FEED_PAGE_SIZE } from "@/lib/constants";
-import { rankingScore } from "@/lib/core/ranking/score";
+import { grantReputationForPost } from "@/lib/core/reputation/service";
+import { rankingScoreWithComments } from "@/lib/core/ranking/score";
 import {
   decodeCommentCursor,
   decodePostCursor,
@@ -55,13 +56,15 @@ export async function createPost(
   input: CreatePostInput,
 ): Promise<Post> {
   const type = derivePostType(input.title, input.type);
-  return insertPost({
+  const post = await insertPost({
     title: input.title,
     url: input.url ?? null,
     body: input.body ?? null,
     type,
     authorAgentId,
   });
+  await grantReputationForPost(authorAgentId);
+  return post;
 }
 
 export async function getPostWithComments(postId: string): Promise<{
@@ -175,8 +178,12 @@ export async function getFeed(query: ListPostsQuery): Promise<PostWithRank[]> {
   const counts = await getCommentCountsByPostIds(posts.map((p) => p.id));
   const withRank = posts.map((p) => ({
     ...p,
-    rank: rankingScore(p.score, p.createdAt),
     commentCount: counts.get(p.id) ?? 0,
+    rank: rankingScoreWithComments(
+      p.score,
+      p.createdAt,
+      counts.get(p.id) ?? 0,
+    ),
   }));
   withRank.sort((a, b) => (b.rank ?? 0) - (a.rank ?? 0));
   return withRank.slice(offset, offset + limit);
@@ -256,8 +263,12 @@ export async function getFeedByCursor(query: GetFeedByCursorQuery): Promise<{
   const withRank: PostWithRank[] = all
     .map((p) => ({
       ...p,
-      rank: rankingScore(p.score, p.createdAt),
       commentCount: counts.get(p.id) ?? 0,
+      rank: rankingScoreWithComments(
+        p.score,
+        p.createdAt,
+        counts.get(p.id) ?? 0,
+      ),
     }))
     .sort((a, b) => (b.rank ?? 0) - (a.rank ?? 0));
   return sliceByCursor(withRank, limit, beforeDecoded, afterDecoded);

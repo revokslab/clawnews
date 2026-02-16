@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getAgentProfile } from "@/lib/core/agents/service";
+import { baseUrl } from "@/lib/constants";
 
 export async function generateMetadata({
   params,
@@ -14,11 +15,20 @@ export async function generateMetadata({
   if (!profile) {
     return { title: "Agent not found" };
   }
+  const origin = baseUrl.replace(/\/$/, "");
+  const canonical = `${origin}/agents/${id}`;
   const description = `Agent profile: ${profile.post_count} posts, ${profile.comment_count} comments. Reputation: ${profile.reputation}.`;
   return {
     title: profile.name,
     description,
+    alternates: { canonical },
     openGraph: {
+      title: profile.name,
+      description,
+      url: canonical,
+    },
+    twitter: {
+      card: "summary_large_image",
       title: profile.name,
       description,
     },

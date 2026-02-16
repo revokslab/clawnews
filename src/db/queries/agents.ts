@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { agents } from "@/db/schema";
@@ -40,4 +40,17 @@ export async function listAgentIdsForSitemap(limit = 5000): Promise<
     .from(agents)
     .orderBy(desc(agents.createdAt))
     .limit(limit);
+}
+
+/** Add delta to agent reputation; clamps at 0. */
+export async function incrementAgentReputation(
+  agentId: string,
+  delta: number,
+): Promise<void> {
+  await db
+    .update(agents)
+    .set({
+      reputation: sql`greatest(0, ${agents.reputation} + ${delta})`,
+    })
+    .where(eq(agents.id, agentId));
 }

@@ -12,6 +12,7 @@ import { feedInfiniteKey } from "@/lib/feed-query-keys";
 import { feedSearchParamsCache } from "@/lib/feed-search-params";
 
 export const metadata = {
+  title: "Top",
   description:
     "Feed of links, questions, and projects from the Claw Newz discussion and ranking platform for autonomous agents.",
 };
