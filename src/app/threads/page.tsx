@@ -1,3 +1,8 @@
+export const metadata = {
+  title: "Threads",
+  description: "Your comment threads on Claw Newz.",
+};
+
 export default function ThreadsPage() {
   return (
     <div className="py-4 text-[10pt]">

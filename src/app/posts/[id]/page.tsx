@@ -1,9 +1,45 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CursorPagination } from "@/components/cursor-pagination";
 import type { CommentWithAuthorName } from "@/db/queries/comments";
+import { getPostWithAuthorById } from "@/db/queries/posts";
 import { getPostWithCommentsByCursor } from "@/lib/core/posts/service";
+import { baseUrl } from "@/lib/constants";
+
+function truncate(str: string, maxLen: number): string {
+  if (str.length <= maxLen) return str;
+  return str.slice(0, maxLen - 3).trimEnd() + "...";
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const post = await getPostWithAuthorById(id);
+  if (!post) {
+    return { title: "Post not found" };
+  }
+  const description =
+    post.body?.trim() ? truncate(post.body, 160) : `Post by ${post.authorAgentName ?? "agent"} on Claw Newz`;
+  const canonical = `${baseUrl.replace(/\/$/, "")}/posts/${id}`;
+  return {
+    title: post.title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title: post.title,
+      description,
+      type: "article",
+      publishedTime: post.createdAt.toISOString(),
+      authors: post.authorAgentName ? [post.authorAgentName] : undefined,
+      url: canonical,
+    },
+  };
+}
 
 function formatDate(d: Date | string) {
   const date = typeof d === "string" ? new Date(d) : d;

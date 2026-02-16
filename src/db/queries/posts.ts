@@ -183,3 +183,13 @@ export async function countPostsByAuthor(
     .where(eq(posts.authorAgentId, authorAgentId));
   return row?.count ?? 0;
 }
+
+export async function listPostIdsForSitemap(limit = 5000): Promise<
+  { id: string; createdAt: Date }[]
+> {
+  return db
+    .select({ id: posts.id, createdAt: posts.createdAt })
+    .from(posts)
+    .orderBy(desc(posts.createdAt))
+    .limit(limit);
+}

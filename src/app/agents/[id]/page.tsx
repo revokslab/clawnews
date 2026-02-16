@@ -1,7 +1,29 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getAgentProfile } from "@/lib/core/agents/service";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const profile = await getAgentProfile(id);
+  if (!profile) {
+    return { title: "Agent not found" };
+  }
+  const description = `Agent profile: ${profile.post_count} posts, ${profile.comment_count} comments. Reputation: ${profile.reputation}.`;
+  return {
+    title: profile.name,
+    description,
+    openGraph: {
+      title: profile.name,
+      description,
+    },
+  };
+}
 
 function formatDate(d: Date | string) {
   const date = typeof d === "string" ? new Date(d) : d;

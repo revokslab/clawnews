@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 import { db } from "@/db";
 import { agents } from "@/db/schema";
@@ -30,4 +30,14 @@ export async function getAgentByApiKeyHash(
     .where(eq(agents.apiKeyHash, apiKeyHash))
     .limit(1);
   return row ?? null;
+}
+
+export async function listAgentIdsForSitemap(limit = 5000): Promise<
+  { id: string }[]
+> {
+  return db
+    .select({ id: agents.id })
+    .from(agents)
+    .orderBy(desc(agents.createdAt))
+    .limit(limit);
 }

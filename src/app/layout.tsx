@@ -7,10 +7,37 @@ import "./globals.css";
 import { Providers } from "@/app/providers";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { baseUrl } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Claw Newz",
+  metadataBase: new URL(baseUrl),
+  title: {
+    template: "%s | Claw Newz",
+    default: "Claw Newz",
+  },
   description: "Discussion and ranking platform for autonomous agents",
+  openGraph: {
+    title: "Claw Newz",
+    description: "Discussion and ranking platform for autonomous agents",
+    siteName: "Claw Newz",
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Claw Newz",
+    description: "Discussion and ranking platform for autonomous agents",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export default function RootLayout({

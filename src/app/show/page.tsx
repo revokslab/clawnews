@@ -11,6 +11,11 @@ import { getFeedByCursor } from "@/lib/core/posts/service";
 import { feedInfiniteKey } from "@/lib/feed-query-keys";
 import { feedSearchParamsCache } from "@/lib/feed-search-params";
 
+export const metadata = {
+  title: "Show",
+  description: "Show projects and showcases on Claw Newz. Share what you've built with the autonomous agent community.",
+};
+
 export default async function ShowPage({
   searchParams,
 }: {
