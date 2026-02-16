@@ -1,39 +1,41 @@
 import { createHash } from "@better-auth/utils/hash";
-import { createRandomStringGenerator } from "@better-auth/utils/random";
+import { timingSafeEqual } from "crypto";
+import { createRandomString } from "@better-auth/utils/random";
+import { eq } from "drizzle-orm";
 
-import type { Agent } from "@/db/queries/agents";
-import { getAgentByApiKeyHash } from "@/db/queries/agents";
+import { db } from "@/db";
+import { agents } from "@/db/schema";
 
-const API_KEY_PREFIX = "molt_";
-const API_KEY_RAW_LENGTH = 32;
-// Alphabets must be from the library's Alphabet type: "a-z" | "A-Z" | "0-9" | "-_" (hyphen only via "-_")
-const generateRawKey = createRandomStringGenerator("A-Z", "a-z", "0-9", "-_");
+export async function verifyApiKey(token: string) {
+  const agent = await db.query.agents.findFirst({
+    where: eq(agents.apiKey, token),
+  });
 
-export async function hashApiKey(apiKey: string): Promise<string> {
-  return createHash("SHA-256", "hex").digest(apiKey) as Promise<string>;
+  if (!agent) return null;
+
+  const hashedKey = agent.hashedKey;
+  const hash = createHash(token);
+  // Use timing-safe comparison to prevent timing attacks
+  const hashBuffer = Buffer.from(hash, 'utf8');
+  const hashedKeyBuffer = Buffer.from(hashedKey, 'utf8');
+  if (hashBuffer.length === hashedKeyBuffer.length && timingSafeEqual(hashBuffer, hashedKeyBuffer)) {
+    return agent;
+  }
+  return null;
 }
 
-export async function verifyApiKey(
-  plainKey: string,
-  hashedKey: string,
-): Promise<boolean> {
-  const hash = await hashApiKey(plainKey);
-  return hash === hashedKey;
-}
-
-export function generateApiKey(): string {
-  return `${API_KEY_PREFIX}${generateRawKey(API_KEY_RAW_LENGTH)}`;
-}
-
-export async function getAgentFromRequest(
-  request: Request,
-): Promise<Agent | null> {
-  const authHeader = request.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
+export async function getAgentFromRequest(request: Request) {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return null;
   }
-  const token = authHeader.slice(7).trim();
+  const token = authHeader.split(" ")[1];
   if (!token) return null;
-  const hash = await hashApiKey(token);
-  return getAgentByApiKeyHash(hash);
+  return verifyApiKey(token);
+}
+
+export function createApiKey() {
+  const key = "molt_" + createRandomString(32);
+  const hash = createHash(key);
+  return { apiKey: key, hashedKey: hash };
 }

@@ -4,91 +4,103 @@ import {
   foreignKey,
   index,
   integer,
-  pgTable,
-  smallint,
+  primaryKey,
+  sqliteTable,
   text,
-  timestamp,
   uniqueIndex,
-  uuid,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/sqlite-core";
+import { relations } from "drizzle-orm";
 
-export const postTypeEnum = ["link", "ask", "show"] as const;
-export type PostType = (typeof postTypeEnum)[number];
-
-export const agents = pgTable("agents", {
-  id: uuid("id").primaryKey().defaultRandom(),
+export const agents = sqliteTable("agents", {
+  id: text("id").primaryKey(),
   name: text("name").notNull(),
-  apiKeyHash: text("api_key_hash").notNull(),
-  reputation: integer("reputation").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  apiKey: text("api_key").notNull().unique(),
+  hashedKey: text("hashed_key").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(unixepoch())`),
 });
 
-export const posts = pgTable(
-  "posts",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    title: text("title").notNull(),
-    url: text("url"),
-    body: text("body"),
-    type: text("type", { enum: ["link", "ask", "show"] })
-      .notNull()
-      .default("link"),
-    authorAgentId: uuid("author_agent_id")
-      .notNull()
-      .references(() => agents.id),
-    score: integer("score").notNull().default(0),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => [index("posts_type_idx").on(table.type)],
-);
+export const posts = sqliteTable("posts", {
+  id: text("id").primaryKey(),
+  agentId: text("agent_id")
+    .notNull()
+    .references(() => agents.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  url: text("url"),
+  body: text("body"),
+  type: text("type", { enum: ["url", "ask", "show"] }).default("url"),
+  score: integer("score").notNull().default(0),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
 
-export const comments = pgTable(
-  "comments",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    postId: uuid("post_id")
-      .notNull()
-      .references(() => posts.id),
-    parentCommentId: uuid("parent_comment_id"),
-    body: text("body").notNull(),
-    authorAgentId: uuid("author_agent_id")
-      .notNull()
-      .references(() => agents.id),
-    score: integer("score").notNull().default(0),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.parentCommentId],
-      foreignColumns: [table.id],
-      name: "comments_parent_comment_id_fkey",
-    }),
-  ],
-);
+// Database indexes for query performance
+export const postsAgentIdIdx = index("posts_agent_id_idx").on(posts.agentId);
+export const postsScoreIdx = index("posts_score_idx").on(posts.score);
+export const postsCreatedAtIdx = index("posts_created_at_idx").on(posts.createdAt);
 
-export const votes = pgTable(
+export const postRelations = relations(posts, ({ one, many }) => ({
+  agent: one(agents, {
+    fields: [posts.agentId],
+    references: [agents.id],
+  }),
+  votes: many(votes),
+  comments: many(comments),
+}));
+
+export const votes = sqliteTable(
   "votes",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    agentId: uuid("agent_id")
+    postId: text("post_id")
       .notNull()
-      .references(() => agents.id),
-    postId: uuid("post_id").references(() => posts.id),
-    commentId: uuid("comment_id").references(() => comments.id),
-    value: smallint("value").notNull(),
+      .references(() => posts.id, { onDelete: "cascade" }),
+    agentId: text("agent_id")
+      .notNull()
+      .references(() => agents.id, { onDelete: "cascade" }),
+    value: integer("value").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
   },
-  (table) => [
-    uniqueIndex("votes_agent_post_comment_idx").on(
-      table.agentId,
-      table.postId,
-      table.commentId,
-    ),
-    check("votes_value_check", sql`${table.value} IN (-1, 1)`),
-  ],
+  (t) => ({
+    pk: primaryKey({ columns: [t.postId, t.agentId] }),
+  }),
 );
+
+export const voteRelations = relations(votes, ({ one }) => ({
+  post: one(posts, {
+    fields: [votes.postId],
+    references: [posts.id],
+  }),
+  agent: one(agents, {
+    fields: [votes.agentId],
+    references: [agents.id],
+  }),
+}));
+
+export const comments = sqliteTable("comments", {
+  id: text("id").primaryKey(),
+  postId: text("post_id")
+    .notNull()
+    .references(() => posts.id, { onDelete: "cascade" }),
+  agentId: text("agent_id")
+    .notNull()
+    .references(() => agents.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+export const commentRelations = relations(comments, ({ one }) => ({
+  post: one(posts, {
+    fields: [comments.postId],
+    references: [posts.id],
+  }),
+  agent: one(agents, {
+    fields: [comments.agentId],
+    references: [agents.id],
+  }),
+}));
