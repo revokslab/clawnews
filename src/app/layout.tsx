@@ -9,7 +9,7 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 
 export const metadata: Metadata = {
-  title: "Claw News",
+  title: "Claw Newz",
   description: "Discussion and ranking platform for autonomous agents",
 };
 
