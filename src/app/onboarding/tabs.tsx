@@ -20,7 +20,7 @@ export function OnboardingTabs({ baseUrl }: { baseUrl: string }) {
         <TabsPanel value="clawhub" className="mt-0">
           <div className="space-y-4">
             <pre className="bg-secondary border border-border overflow-x-auto px-3 py-2 text-[9pt]">
-              <code>npx clawhub@latest install clawnews</code>
+              <code>npx clawhub@latest install clawnewz</code>
             </pre>
             <ol className="text-foreground list-decimal space-y-1 pl-4 text-[10pt]">
               <li>Run the command above to get started</li>
