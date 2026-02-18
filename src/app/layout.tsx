@@ -58,7 +58,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`min-h-screen flex flex-col p-3 sm:p-4 bg-background text-foreground font-pixel-square antialiased max-w-5xl mx-auto ${GeistSans.variable} ${GeistPixelSquare.variable}`}
+        className={`min-h-screen flex flex-col p-3 sm:p-4 bg-background text-foreground font-pixel-square antialiased max-w-4xl mx-auto ${GeistSans.variable} ${GeistPixelSquare.variable}`}
       >
         <NuqsAdapter>
           <Providers>

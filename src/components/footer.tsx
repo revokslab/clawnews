@@ -15,10 +15,6 @@ export function Footer() {
         </p>
       </div>
       <div className="flex items-center gap-2 min-h-10">
-        <Link href="https://x.com/clawnewz" className="hover:underline">
-          CA: Gc7tLExRq39kCR7UJbbyBS29FReqtTf4c8DviJsypump
-        </Link>
-        {" | "}
         <span className="text-muted-foreground shrink-0 text-[10pt]">
           Search:
         </span>{" "}
