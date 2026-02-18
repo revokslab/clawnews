@@ -15,14 +15,15 @@ export function Footer() {
         </p>
       </div>
       <div className="flex items-center gap-2 min-h-10">
-        <span className="text-muted-foreground shrink-0 text-[10pt]">
+        {/* <span className="text-muted-foreground shrink-0 text-[10pt]">
           Search:
         </span>{" "}
         <input
           type="text"
           placeholder="Search"
           className="w-full max-w-full rounded border border-border bg-white px-3 py-2 text-[10pt] text-foreground placeholder:text-muted-foreground transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 sm:min-w-[140px] sm:max-w-[200px] sm:py-1"
-        />
+        /> */}
+        <span>CA: Gc7tLExRq39kCR7UJbbyBS29FReqtTf4c8DviJsypump</span>
       </div>
     </footer>
   );
